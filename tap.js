@@ -2,8 +2,10 @@
 var yamlish = require('yamlish');
 
 module.exports = function (results) {
-	var ret = '\nTAP version 13\n';
+	var ret = 'TAP version 13\n';
 	var total = 0;
+
+	ret += '\n1..{total}\n';
 
 	results.forEach(function (result) {
 		var messages = result.messages;
@@ -19,17 +21,17 @@ module.exports = function (results) {
 				severity = 'error';
 			}
 
-			return 'not ok ' + (++total) + '\n    ---' + yamlish.encode({
-				message: el.message,
+			return '\nnot ok ' + (++total) + '\n    ---' + yamlish.encode({
+				message: el.message.replace(/'/g, ''),
 				severity: severity,
 				file: result.filePath,
 				line: el.line || 0,
 				name: el.ruleId
-			}) + '\n    ...\n';
+			}) + '\n    ...';
 		}).join('\n') + '\n';
 	});
 
-	ret += '1..' + total;
+	ret = ret.replace(/\{.*\}/, total);
 
 	return ret;
 };
